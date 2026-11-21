@@ -1,34 +1,13 @@
 import { memo } from 'react'
 import SoapBar from './SoapBar'
+import WaterGL from './WaterGL'
 import { soaps } from '../data/soaps'
 
 /**
- * Hero water. Everything here moves with compositor-only CSS animations
- * (transform / opacity) — no per-frame JavaScript, no canvas, no filters.
- * Each wave is a periodic SVG strip twice the viewport wide that slides by -50%.
+ * Hero water: WebGL caustics underneath, then soaps resting on the surface,
+ * each with a soft shadow on the sand below, expanding ripple rings and a little
+ * cluster of lather. Floating neem leaves drift across. Motion is CSS-only.
  */
-
-const TILE = 1440
-
-function wave(amp: number, periods: number, h = 40) {
-  const mid = h / 2
-  let d = `M0 ${h} L0 ${mid}`
-  const total = TILE * 2
-  for (let x = 0; x <= total; x += 24) {
-    const y = mid + Math.sin((x / TILE) * Math.PI * 2 * periods) * amp
-    d += ` L${x} ${y.toFixed(1)}`
-  }
-  return d + ` L${total} ${h} Z`
-}
-
-const BACK = [
-  { cls: 'w-back', d: wave(7, 3), fill: '#cde8dc' },
-  { cls: 'w-mid', d: wave(10, 2), fill: '#86c7b0' },
-]
-const FRONT = [
-  { cls: 'w-over', d: wave(10, 2), fill: 'rgba(80,160,138,.55)' },
-  { cls: 'w-front', d: wave(12, 2), fill: '#3d8a73' },
-]
 
 const FLOATERS = [
   { soap: soaps[6], seed: 3, cls: 'fl-l' },
@@ -36,39 +15,31 @@ const FLOATERS = [
   { soap: soaps[3], seed: 7, cls: 'fl-r' },
 ]
 
-const BUBBLES = Array.from({ length: 12 }, (_, i) => ({
-  left: (i * 37 + 7) % 100,
-  size: 6 + ((i * 13) % 18),
-  dur: 5 + ((i * 7) % 5),
-  delay: -((i * 1.7) % 8),
-}))
+// foam bubbles around each bar: [x%, y%, size px]
+const FOAM: [number, number, number][] = [
+  [8, 78, 14], [14, 86, 9], [20, 80, 6], [88, 74, 12], [94, 82, 7], [82, 88, 9], [50, 94, 8], [60, 90, 5], [30, 92, 6],
+]
 
-function Layer({ cls, d, fill }: { cls: string; d: string; fill: string }) {
+function Leaf({ id }: { id: string }) {
   return (
-    <div className={'wave ' + cls}>
-      <svg className="wave-strip" viewBox={`0 0 ${TILE * 2} 40`} preserveAspectRatio="none" aria-hidden="true">
-        <path d={d} fill={fill} />
-      </svg>
-      <div className="wave-body" />
-    </div>
-  )
-}
-
-function Pad({ r, flower }: { r: number; flower?: boolean }) {
-  return (
-    <svg viewBox="-60 -50 120 70" aria-hidden="true">
-      <g transform="scale(1 0.36)">
-        <path d={`M0 0 L${r} ${-r * 0.16} A${r} ${r} 0 1 1 ${r} ${r * 0.16} Z`} fill="#67a842" stroke="#2f6420" strokeWidth="3" />
-        <path d={`M0 0 L${-r * 0.8} 0 M0 0 L${-r * 0.4} ${r * 0.7} M0 0 L${-r * 0.4} ${-r * 0.7}`} stroke="#3d7a2a" strokeWidth="3" />
-      </g>
-      {flower && (
-        <g transform="translate(0 -10)">
-          {[-50, -25, 0, 25, 50].map((a) => (
-            <ellipse key={a} cx="0" cy="-10" rx="6" ry="14" fill="#f6c6d6" stroke="#c9587a" strokeWidth="1.4" transform={`rotate(${a})`} />
-          ))}
-          <circle r="4" cy="-2" fill="#f2c94c" />
-        </g>
-      )}
+    <svg viewBox="-10 -10 150 70" aria-hidden="true">
+      <defs>
+        <linearGradient id={`lf${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#86ad4c" />
+          <stop offset="0.5" stopColor="#5d8a2e" />
+          <stop offset="1" stopColor="#3f6a1f" />
+        </linearGradient>
+        <filter id={`ls${id}`} x="-20%" y="-40%" width="140%" height="200%">
+          <feGaussianBlur stdDeviation="4" />
+        </filter>
+      </defs>
+      {/* shadow cast on the sand */}
+      <path d="M4 34 C30 8 92 6 128 30 C92 52 34 56 4 34 Z" transform="translate(10 14)" fill="#0d3b3b" opacity="0.28" filter={`url(#ls${id})`} />
+      <path d="M4 24 C30 -2 92 -4 128 20 C92 42 34 46 4 24 Z" fill={`url(#lf${id})`} />
+      <path d="M6 24 C50 20 90 19 126 20" stroke="#c9dc8c" strokeWidth="1.6" fill="none" opacity="0.8" />
+      <path d="M30 23 l12 -12 M50 22 l14 -14 M70 21 l14 -13 M92 21 l12 -10 M38 24 l12 11 M60 23 l13 12 M82 22 l12 10"
+        stroke="#a9c66a" strokeWidth="0.9" fill="none" opacity="0.55" />
+      <path d="M14 18 C40 4 80 2 110 14" stroke="#fff" strokeWidth="2" fill="none" opacity="0.18" strokeLinecap="round" />
     </svg>
   )
 }
@@ -76,24 +47,24 @@ function Pad({ r, flower }: { r: number; flower?: boolean }) {
 function Pond() {
   return (
     <div className="pond" aria-hidden="true">
-      {BACK.map((l) => <Layer key={l.cls} {...l} />)}
-      <div className="pond-bubbles">
-        {BUBBLES.map((b, i) => (
-          <span key={i} style={{ left: b.left + '%', width: b.size, height: b.size, animationDuration: b.dur + 's', animationDelay: b.delay + 's' }} />
-        ))}
-      </div>
+      <WaterGL />
       {FLOATERS.map((f) => (
         <div key={f.soap.id} className={'floater ' + f.cls}>
+          <div className="fl-shadow" />
+          <div className="fl-ripples"><i /><i /><i /></div>
           <div className="floater-bob">
             <SoapBar soap={f.soap} seed={f.seed} compact />
           </div>
+          <div className="fl-foam">
+            {FOAM.map(([x, y, s], i) => (
+              <span key={i} style={{ left: x + '%', top: y + '%', width: s, height: s, animationDelay: -i * 0.6 + 's' }} />
+            ))}
+          </div>
         </div>
       ))}
-      {FRONT.map((l) => <Layer key={l.cls} {...l} />)}
-      <div className="pad pad-1"><Pad r={46} /></div>
-      <div className="pad pad-2"><Pad r={38} flower /></div>
-      <div className="pad pad-3"><Pad r={42} /></div>
-      <div className="pad pad-4"><Pad r={50} /></div>
+      <div className="drift-leaf dl-1"><Leaf id="a" /></div>
+      <div className="drift-leaf dl-2"><Leaf id="b" /></div>
+      <div className="drift-leaf dl-3"><Leaf id="c" /></div>
     </div>
   )
 }

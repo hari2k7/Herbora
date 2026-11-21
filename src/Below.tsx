@@ -28,8 +28,6 @@ export default function Below({ bagRef, onAdd, onArrive }: Props) {
     const ctx = gsap.context(() => {
       const st = { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
       gsap.to('.hero-copy', { yPercent: -35, ease: 'none', scrollTrigger: st })
-      gsap.to('.cloud-l', { y: -120, ease: 'none', scrollTrigger: st })
-      gsap.to('.cloud-r', { y: -180, ease: 'none', scrollTrigger: st })
     })
     return () => ctx.revert()
   }, [])

@@ -226,6 +226,7 @@ export default function SoapShowcase({ onAdd }: Props) {
         </div>
         {soaps.map((s, i) => (
           <div key={s.id} className="soap-slot" ref={(d) => { slots.current[i] = d }}>
+            <div className="soap-shadow" />
             <div className="soap-float" style={{ animationDelay: `${-i * 0.7}s` }}>
               <SoapBar soap={s} seed={i + 1} />
             </div>

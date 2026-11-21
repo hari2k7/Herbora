@@ -77,22 +77,12 @@ ul { list-style: none; }
 /* ================= hero ================= */
 .hero {
   position: relative; height: 100vh; min-height: 640px; overflow: hidden; overflow: clip;
-  background: linear-gradient(180deg, #f8f4ea 0%, #f1f0e0 45%, #ddebd6 100%);
+  background: linear-gradient(180deg, #f4f2ea 0%, #f2f1e8 26%, #bfe4dd 58%, #75bfbf 100%);
 }
-.hero-sun {
-  position: absolute; left: 50%; top: 4%; width: min(80vw, 900px); aspect-ratio: 1; translate: -50% 0;
-  background: radial-gradient(circle, rgba(250, 226, 150, 0.55) 0%, rgba(250, 226, 150, 0) 60%);
-  pointer-events: none;
-}
-.cloud { position: absolute; z-index: 3; pointer-events: none; }
-.cloud svg { width: 100%; height: auto; }
-.drift-a, .drift-b { will-change: transform; }
-.cloud-l { top: 5%; left: -6%; width: min(40vw, 580px); }
-.cloud-r { top: 12%; right: -7%; width: min(38vw, 560px); }
-@keyframes driftA { to { transform: translateX(26px) translateY(4px); } }
-@keyframes driftB { to { transform: translateX(-30px) translateY(6px); } }
-.drift-a { animation: driftA 14s ease-in-out infinite alternate; }
-.drift-b { animation: driftB 17s ease-in-out infinite alternate; }
+.hero-media { position: absolute; inset: 0; z-index: 1; }
+.pond { position: absolute; inset: 0; overflow: hidden; overflow: clip; }
+.water-gl { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+.water-gl.on { opacity: 1; }
 
 .hero-copy {
   position: absolute; z-index: 6; top: 14%; left: 0; right: 0;
@@ -101,8 +91,8 @@ ul { list-style: none; }
 .hero-title {
   font-family: var(--brand); font-weight: 400;
   font-size: clamp(52px, 15.5vw, 250px); line-height: 0.92; letter-spacing: 0.01em; white-space: nowrap;
-  color: #2f6131;
-  text-shadow: 0 3px 0 #24502a, 0 6px 0 #1a3a1c, 0 16px 26px rgba(20, 60, 25, 0.25);
+  color: #1f4a2c;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 1px rgba(10, 40, 20, 0.25), 0 22px 40px rgba(15, 60, 55, 0.2);
   user-select: none;
 }
 .ch { display: inline-block; transform-origin: 50% 100%; cursor: default; }
@@ -116,18 +106,12 @@ ul { list-style: none; }
   85% { transform: scale(1.03, 0.97); }
   100% { transform: scale(1, 1); }
 }
-.hero-title .ch { animation: letterIn 0.9s cubic-bezier(0.3, 1.6, 0.5, 1) both; animation-delay: calc(var(--i) * 60ms + 80ms); }
 .hero-title .ch.wobble { animation: jelly 0.9s cubic-bezier(0.3, 0.6, 0.4, 1) both; }
-@keyframes letterIn { from { transform: translateY(45%) scale(1.15, 0.55); } }
 .hero-tag { animation: fadeUp 0.8s 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .hero-cta { animation: fadeUp 0.8s 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .scroll-cue { animation: fadeUp 0.8s 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.cloud-l svg { animation: cloudInL 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.cloud-r svg { animation: cloudInR 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } }
-@keyframes cloudInL { from { opacity: 0; transform: translateX(-30%); } }
-@keyframes cloudInR { from { opacity: 0; transform: translateX(30%) scaleX(-1); } to { transform: scaleX(-1); } }
-.hero-tag { margin-top: 14px; font-size: clamp(19px, 2vw, 28px); color: #2a3b2c; max-width: 640px; }
+.hero-tag { margin-top: 14px; font-size: clamp(19px, 2vw, 28px); color: #24382b; max-width: 640px; }
 .hero-tag em { font-style: normal; color: var(--moss); }
 .hero-cta { margin-top: 26px; }
 
@@ -149,66 +133,66 @@ ul { list-style: none; }
 .btn-leaf:hover .btn-leaf-arrow svg { animation: nudge 0.8s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(4px); } }
 
-.hero-media { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; z-index: 2; }
-.pond { position: absolute; inset: 0; overflow: hidden; overflow: clip; }
-.wave { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
-.wave-strip { width: 200%; height: 40px; flex: none; margin-bottom: -1px; will-change: transform; animation: waveSlide 14s linear infinite; }
-.wave-body { flex: 1; }
-@keyframes waveSlide { to { transform: translate3d(-50%, 0, 0); } }
-@keyframes waveBob { 50% { transform: translate3d(0, 6px, 0); } }
-.w-back { top: 28%; animation: waveBob 5s ease-in-out infinite; }
-.w-back .wave-body { background: linear-gradient(#cde8dc, #a8d6c4); }
-.w-back .wave-strip { animation-duration: 22s; animation-direction: reverse; }
-.w-mid, .w-over { top: 44%; animation: waveBob 4s ease-in-out infinite; }
-.w-mid .wave-body { background: linear-gradient(#86c7b0, #4f9e88 60%); }
-.w-mid .wave-strip, .w-over .wave-strip { animation-duration: 16s; }
-.w-over .wave-body { background: linear-gradient(rgba(80, 160, 138, 0.55), rgba(63, 143, 121, 0.92) 30%); }
-.w-front { top: 72%; animation: waveBob 3.4s ease-in-out infinite reverse; }
-.w-front .wave-body { background: linear-gradient(#3d8a73, #174a3d); }
-.w-front .wave-strip { animation-duration: 11s; }
-
-.floater { position: absolute; top: 44%; --w: clamp(120px, min(17vw, 30vh), 300px); width: var(--w); transform: translate(-50%, -58%); }
-.floater.fl-c { --w: clamp(160px, min(26vw, 44vh), 400px); left: 50%; }
-.floater.fl-l { left: 17%; }
-.floater.fl-r { left: 83%; }
-.floater-bob { will-change: transform; animation: floatBob 4s ease-in-out infinite; }
-.fl-l .floater-bob { animation-duration: 4.6s; animation-delay: -1.2s; }
-.fl-r .floater-bob { animation-duration: 5.2s; animation-delay: -2.4s; }
-.floater svg { width: 100%; height: auto; }
+/* soaps resting on the water */
+.floater { position: absolute; --w: clamp(120px, min(18vw, 30vh), 300px); width: var(--w); transform: translate(-50%, -50%); }
+.floater.fl-c { --w: clamp(170px, min(25vw, 40vh), 380px); left: 50%; top: 77%; }
+.floater.fl-l { left: 15%; top: 66%; }
+.floater.fl-r { left: 85%; top: 69%; }
+.floater svg { position: relative; width: 100%; height: auto; }
+.floater-bob { position: relative; will-change: transform; animation: floatBob 5s ease-in-out infinite; }
+.fl-l .floater-bob, .fl-l .fl-shadow { animation-duration: 5.6s; animation-delay: -1.2s; }
+.fl-r .floater-bob, .fl-r .fl-shadow { animation-duration: 6.2s; animation-delay: -2.4s; }
 @keyframes floatBob {
-  0%, 100% { transform: translate3d(0, -4px, 0) rotate(-3deg); }
-  50% { transform: translate3d(0, 8px, 0) rotate(3deg); }
+  0%, 100% { transform: translate3d(0, -3px, 0) rotate(-1.2deg); }
+  50% { transform: translate3d(0, 4px, 0) rotate(1deg); }
 }
-.pond-bubbles { position: absolute; left: 0; right: 0; top: 46%; height: 0; }
-.pond-bubbles span {
-  position: absolute; top: 0; border-radius: 50%; opacity: 0; will-change: transform, opacity;
-  background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.95) 0 10%, rgba(255, 255, 255, 0.12) 32%, rgba(190, 235, 255, 0.2) 70%, rgba(255, 190, 230, 0.45) 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
-  animation: pondBubble 7s ease-in infinite;
+.fl-shadow {
+  position: absolute; left: 6%; right: 2%; top: 30%; height: 82%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(6, 58, 60, 0.42), rgba(6, 58, 60, 0.18) 55%, rgba(6, 58, 60, 0));
+  transform: translate(7%, 24%); will-change: transform, opacity; animation: shadowBob 5s ease-in-out infinite;
 }
-@keyframes pondBubble {
-  0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
-  15% { opacity: 1; }
-  100% { transform: translate3d(12px, -26vh, 0) scale(1.1); opacity: 0; }
+@keyframes shadowBob {
+  0%, 100% { transform: translate(8%, 26%) scale(1.04); opacity: 0.85; }
+  50% { transform: translate(6%, 22%) scale(0.97); opacity: 1; }
 }
-.pad { position: absolute; top: 72%; width: clamp(70px, 9vw, 130px); transform: translate(-50%, -62%); }
-.pad svg { width: 100%; height: auto; animation: floatBob 3.6s ease-in-out infinite; will-change: transform; }
-.pad-1 { left: 6%; } .pad-2 { left: 36%; } .pad-3 { left: 66%; } .pad-4 { left: 95%; }
-.pad-2 svg { animation-delay: -1s; } .pad-3 svg { animation-delay: -2s; } .pad-4 svg { animation-delay: -0.5s; }
-
-.leaves { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; overflow: clip; }
-.leaf-fall { position: absolute; top: -24px; animation: fall linear infinite; opacity: 0.9; will-change: transform; }
-.fall-1 { animation-name: fall1; } .fall-2 { animation-name: fall2; }
-@keyframes fall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(70px, 110vh, 0) rotate(540deg); } }
-@keyframes fall1 { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-80px, 110vh, 0) rotate(-500deg); } }
-@keyframes fall2 { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(20px, 110vh, 0) rotate(620deg); } }
+.fl-ripples i {
+  position: absolute; left: 50%; top: 66%; width: 125%; aspect-ratio: 2.8; border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.7); opacity: 0; will-change: transform, opacity;
+  animation: ripple2 5s ease-out infinite;
+}
+.fl-ripples i:nth-child(2) { animation-delay: 1.66s; }
+.fl-ripples i:nth-child(3) { animation-delay: 3.33s; }
+@keyframes ripple2 {
+  0% { transform: translate(-50%, -50%) scale(0.62); opacity: 0; }
+  12% { opacity: 0.75; }
+  100% { transform: translate(-50%, -50%) scale(1.55); opacity: 0; }
+}
+.fl-foam { position: absolute; inset: 0; pointer-events: none; }
+.fl-foam span {
+  position: absolute; border-radius: 50%; will-change: transform;
+  background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.95) 0 12%, rgba(255, 255, 255, 0.2) 38%, rgba(220, 245, 245, 0.12) 68%, rgba(255, 255, 255, 0.75) 100%);
+  box-shadow: 0 2px 3px rgba(0, 60, 60, 0.18);
+  animation: foam 3.2s ease-in-out infinite alternate;
+}
+@keyframes foam { to { transform: translate3d(2px, -2px, 0) scale(1.08); } }
+.drift-leaf { position: absolute; left: 0; width: clamp(64px, 7vw, 112px); will-change: transform; animation: leafDrift 70s linear infinite; }
+.drift-leaf svg { width: 100%; height: auto; overflow: visible; }
+.dl-1 { top: 56%; animation-delay: -12s; }
+.dl-2 { top: 84%; animation-duration: 54s; animation-delay: -36s; width: clamp(54px, 5.5vw, 90px); }
+.dl-3 { top: 78%; animation-duration: 90s; animation-delay: -64s; }
+@keyframes leafDrift {
+  from { transform: translate3d(-15vw, 0, 0) rotate(-12deg); }
+  50% { transform: translate3d(50vw, -2vh, 0) rotate(8deg); }
+  to { transform: translate3d(115vw, -4vh, 0) rotate(24deg); }
+}
 
 .scroll-cue {
-  position: absolute; z-index: 7; bottom: 64px; left: 0; right: 0; margin: 0 auto; width: max-content;
-  display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--cream); font-size: 14px; letter-spacing: 0.08em;
+  position: absolute; z-index: 7; bottom: 70px; left: 32px; width: max-content;
+  display: flex; flex-direction: row; align-items: center; gap: 10px; color: #f4fbfa; font-size: 14px; letter-spacing: 0.08em;
+  text-shadow: 0 1px 6px rgba(0, 50, 50, 0.35);
 }
 .cue-bubble {
-  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.85);
+  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.9);
   background: radial-gradient(circle at 32% 30%, #fff 0 12%, transparent 14%);
   animation: cue 2s ease-in-out infinite;
 }
@@ -253,7 +237,8 @@ ul { list-style: none; }
 .col-bubbles { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 .col-bubbles.front { z-index: 4; }
 .stage { position: absolute; z-index: 3; left: 0; top: 0; bottom: 0; width: 54%; display: grid; place-items: center; pointer-events: none; }
-.soap-slot { grid-area: 1 / 1; width: min(40vw, 540px); visibility: hidden; will-change: transform; }
+.soap-shadow { position: absolute; left: 10%; right: 6%; bottom: -4%; height: 26%; border-radius: 50%; background: radial-gradient(closest-side, rgba(20, 30, 10, 0.3), rgba(20, 30, 10, 0)); }
+.soap-slot { position: relative; grid-area: 1 / 1; width: min(40vw, 540px); visibility: hidden; will-change: transform; }
 .soap-float { animation: floaty 6s ease-in-out infinite; }
 .soap-float { will-change: transform; }
 .soap-float svg { width: 100%; height: auto; }
@@ -457,14 +442,16 @@ ul { list-style: none; }
   .floater.fl-l { left: 9%; }
   .floater.fl-r { left: 91%; }
   .floater { --w: 30vw; }
-  .floater.fl-c { --w: 46vw; }
+  .floater.fl-l { top: 63%; }
+  .floater.fl-r { top: 66%; }
+  .floater.fl-c { top: 76%; }
+  .floater.fl-c { --w: 54vw; }
 
   .hero { height: 100svh; min-height: 580px; }
   .hero-copy { top: 16%; }
   .hero-title { font-size: 16vw; }
-  .hero-media { height: 60%; }
-  .cloud-l { width: 70vw; left: -22vw; top: 9%; }
-  .cloud-r { width: 64vw; right: -24vw; top: 13%; }
+  .scroll-cue { display: none; }
+
   .btn-leaf { height: 52px; font-size: 16px; }
 
   .marquee { margin-top: -24px; padding: 14px 0; }
@@ -508,5 +495,5 @@ ul { list-style: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drift-a, .drift-b, .leaf-fall, .soap-float, .puddle i, .badge-svg, .cue-bubble { animation: none !important; }
+  .drift-leaf, .floater-bob, .fl-shadow, .fl-ripples i, .fl-foam span, .soap-float, .puddle i, .badge-svg, .cue-bubble { animation: none !important; }
 }

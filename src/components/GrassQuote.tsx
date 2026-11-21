@@ -176,11 +176,9 @@ export default function GrassQuote() {
       frame++
       if (!mouse.on && settled && frame % 2) return
       const time = reduceMotion ? 0 : (now - t0) / 1000
-      // smoothed pointer
-      if (mouse.on) {
-        mouse.sx += (mouse.x - mouse.sx) * 0.25
-        mouse.sy += (mouse.y - mouse.sy) * 0.25
-      } else { mouse.sx = mouse.sy = -9999 }
+      // follow the pointer exactly — no smoothing lag
+      if (mouse.on) { mouse.sx = mouse.x; mouse.sy = mouse.y }
+      else { mouse.sx = mouse.sy = -9999 }
       const R = Math.max(90, T * 1.3)
       const R2 = R * R
       g.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -197,11 +195,11 @@ export default function GrassQuote() {
         grd.addColorStop(0, 'rgba(6,26,6,0.85)')
         grd.addColorStop(0.55, 'rgba(8,30,8,0.45)')
         grd.addColorStop(1, 'rgba(8,30,8,0)')
-        g.save()
-        if (bandPath) g.clip(bandPath)
+        // paint only onto the band already drawn (much cheaper than clipping to its path)
+        g.globalCompositeOperation = 'source-atop'
         g.fillStyle = grd
         g.fillRect(mouse.sx - R, mouse.sy - R, R * 2, R * 2)
-        g.restore()
+        g.globalCompositeOperation = 'source-over'
       }
 
       for (let k = 0; k < buckets.length; k++) buckets[k] = new Path2D()
@@ -223,8 +221,10 @@ export default function GrassQuote() {
           px = (mx / d) * push
           py = (my / d) * push
         }
-        ox[i] += (px - ox[i]) * 0.16
-        oy[i] += (py - oy[i]) * 0.16
+        // snap away from the pointer quickly, spring back more slowly
+        const k = px !== 0 || py !== 0 ? 0.55 : 0.14
+        ox[i] += (px - ox[i]) * k
+        oy[i] += (py - oy[i]) * k
         if (ox[i] > 0.3 || ox[i] < -0.3 || oy[i] > 0.3 || oy[i] < -0.3) moving++
         else if (px === 0) { ox[i] = 0; oy[i] = 0 }
         tx += ox[i]
