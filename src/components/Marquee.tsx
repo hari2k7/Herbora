@@ -48,6 +48,7 @@ export default function Marquee() {
   }, [])
   const row = [...WORDS, ...WORDS]
   return (
+    <div className="marquee-wrap">
     <div className="marquee" ref={wrap} aria-label={WORDS.join(', ')}>
       <div className="marquee-track" ref={track} aria-hidden="true">
         {[...row, ...row].map((w, i) => (
@@ -57,6 +58,7 @@ export default function Marquee() {
           </span>
         ))}
       </div>
+    </div>
     </div>
   )
 }

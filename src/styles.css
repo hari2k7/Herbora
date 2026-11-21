@@ -14,7 +14,7 @@
 
 /* ================= base ================= */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: #1f3d2a; }
+html { background: var(--paper); overflow-x: hidden; overflow-x: clip; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
@@ -26,6 +26,7 @@ body {
   color: var(--ink);
   background: transparent;
   overflow-x: hidden;
+  overflow-x: clip; /* clip (not hidden) keeps sticky elements working */
   -webkit-font-smoothing: antialiased;
 }
 img, svg, video, canvas { display: block; max-width: 100%; }
@@ -199,6 +200,8 @@ ul { list-style: none; }
 @keyframes cue { 0% { transform: translateY(8px) scale(0.8); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-14px) scale(1.1); opacity: 0; } }
 
 /* ================= marquee ================= */
+/* the tilted ribbon is wider than the screen; this wrapper trims it so phones don't zoom out */
+.marquee-wrap { position: relative; z-index: 8; overflow-x: hidden; overflow-x: clip; }
 .marquee {
   position: relative; z-index: 8; margin: -34px -40px 0; padding: 18px 0;
   background: var(--forest); color: var(--cream); transform: rotate(-2deg); overflow: hidden; overflow: clip;
