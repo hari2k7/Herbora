@@ -230,38 +230,43 @@ export function Kuppaimeni() {
   )
 }
 
-/* ---------------- Turmeric: knobbly rhizome fingers with growth rings ---------------- */
-export function Turmeric() {
-  const fingers = [
-    { x: 70, y: 100, rot: -8, l: 120, r: 22 },
-    { x: 110, y: 92, rot: -58, l: 70, r: 15 },
-    { x: 140, y: 102, rot: 30, l: 62, r: 14 },
-    { x: 92, y: 110, rot: 64, l: 48, r: 13 },
-    { x: 60, y: 96, rot: -130, l: 46, r: 13 },
-  ]
+/* ---------------- Coconut: a whole nut and a split half showing the flesh ---------------- */
+export function Coconut() {
+  // fibrous husk strokes radiating around the whole nut
+  const fibres: React.ReactNode[] = []
+  for (let i = 0; i < 26; i++) {
+    const a = (i / 26) * Math.PI * 2
+    const r0 = 30 + (i % 3) * 6
+    const x0 = 78 + Math.cos(a) * r0
+    const y0 = 78 + Math.sin(a) * r0 * 0.92
+    fibres.push(<path key={i} d={`M${x0.toFixed(1)} ${y0.toFixed(1)} q${(Math.cos(a + 0.6) * 6).toFixed(1)} ${(Math.sin(a + 0.6) * 6).toFixed(1)} ${(Math.cos(a) * 12).toFixed(1)} ${(Math.sin(a) * 11).toFixed(1)}`} {...hatch} />)
+  }
   return (
     <svg viewBox="0 0 240 190" className="herb-svg">
-      {fingers.map((f, i) => (
-        <g key={i} transform={`translate(${f.x} ${f.y}) rotate(${f.rot})`}>
-          <rect x={-f.r} y={-f.r} width={f.l} height={f.r * 2} rx={f.r} fill={CREAM} {...ink} />
-          {Array.from({ length: Math.floor(f.l / 14) }, (_, k) => (
-            <path key={k} d={`M${k * 14 + 2} ${-f.r + 3} q4 ${f.r} 0 ${f.r * 2 - 6}`} {...hatch} />
-          ))}
-          <path d={`M${f.l - f.r * 2} ${f.r * 0.5} l${f.r * 0.6} 0`} {...hatch} />
-          {/* root hairs */}
-          {[0.3, 0.55].map((s) => (
-            <path key={s} d={`M${f.l * s} ${f.r} q2 8 -3 14`} fill="none" {...ink} strokeWidth={1} />
-          ))}
-        </g>
+      {/* whole coconut */}
+      <ellipse cx="78" cy="78" rx="62" ry="58" fill={CREAM} {...ink} />
+      {fibres}
+      {[[66, 58], [86, 54], [76, 72]].map(([x, y], i) => (
+        <ellipse key={i} cx={x} cy={y} rx="4.5" ry="5.5" fill={CREAM_D} {...ink} strokeWidth={1.4} />
       ))}
-      {/* a sliced coin showing the cut face */}
-      <g transform="translate(196 150)">
-        <ellipse rx="22" ry="20" fill={CREAM_D} {...ink} />
-        <ellipse rx="14" ry="12.5" {...hatch} />
-        {Array.from({ length: 10 }, (_, i) => (
-          <circle key={i} cx={Math.cos(i * 0.63) * 8} cy={Math.sin(i * 0.63) * 7} r={1} fill={INK} opacity={0.6} />
-        ))}
+      {/* split half, facing us */}
+      <g transform="translate(160 122) rotate(-10)">
+        <ellipse rx="66" ry="44" fill={CREAM_D} {...ink} />
+        {/* white flesh ring */}
+        <ellipse rx="56" ry="36" fill={CREAM} {...ink} strokeWidth={1.4} />
+        {/* hollow with coconut water */}
+        <ellipse rx="40" ry="24" cy="2" fill={CREAM_D} {...ink} strokeWidth={1.2} />
+        <path d="M-30 4 Q0 -10 30 4" {...hatch} opacity={0.8} />
+        <path d="M-24 12 Q0 2 24 12" {...hatch} />
+        {/* shell hatching on the rim */}
+        {Array.from({ length: 14 }, (_, i) => {
+          const a = Math.PI * (0.05 + (i / 13) * 0.9)
+          return <path key={i} d={`M${(Math.cos(a) * 58).toFixed(1)} ${(Math.sin(a) * 38).toFixed(1)} L${(Math.cos(a) * 65).toFixed(1)} ${(Math.sin(a) * 43).toFixed(1)}`} {...hatch} />
+        })}
       </g>
+      {/* a drop of oil */}
+      <path d="M214 40 C206 54 206 62 214 64 C222 62 222 54 214 40 Z" fill={CREAM} {...ink} strokeWidth={1.4} />
+      <path d="M211 56 q1 4 4 5" {...hatch} />
     </svg>
   )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { getLenis, reduceMotion } from '../lib/motion'
 
-const WORDS = ['Cold-processed', 'Small batch', 'Palm-oil free', 'Cruelty-free', 'Hand-cut']
+const WORDS = ['Cold-processed', 'Small batch', 'Homemade', 'Cruelty-free', 'Hand-cut']
 
 const Leaf = () => (
   <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">

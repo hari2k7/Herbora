@@ -15,7 +15,8 @@ export interface Soap {
   description: string
   benefits: string[]
   price: number
-  weight: string
+  /** selling unit shown after the price */
+  unit: string
   shape: SoapShape
   texture: SoapTexture
   textureColor?: string
@@ -33,8 +34,8 @@ export const soaps: Soap[] = [
     description:
       'Fresh neem leaf and cold-pressed neem oil, slow-cured for six weeks. A clarifying bar that calms breakouts without stripping your skin.',
     benefits: ['Anti-bacterial', 'Clears acne', 'Oil balance'],
-    price: 149,
-    weight: '100 g',
+    price: 45,
+    unit: 'piece',
     shape: 'bar',
     texture: 'speckle',
     textureColor: '#2f5418',
@@ -48,13 +49,13 @@ export const soaps: Soap[] = [
     tint: '#e2f2e5',
     tagline: 'A cool drink of water for your skin.',
     description:
-      'Fresh aloe gel folded into a clear glycerin base. Soothes sun-tired skin and leaves a dewy, hydrated finish.',
+      'Fresh aloe vera gel blended into a pure coconut-oil base. Soothes sun-tired skin and leaves a dewy, hydrated finish.',
     benefits: ['Deep hydration', 'Soothes sunburn', 'Dewy glow'],
-    price: 139,
-    weight: '100 g',
+    price: 45,
+    unit: 'piece',
     shape: 'pebble',
-    texture: 'gel',
-    textureColor: '#effdee',
+    texture: 'speckle',
+    textureColor: '#3f8a55',
   },
   {
     id: 'carrot',
@@ -65,10 +66,10 @@ export const soaps: Soap[] = [
     tint: '#fbe7d1',
     tagline: 'Beta-carotene, poured like sunshine.',
     description:
-      'Carrot seed oil and pressed carrot juice, rich in vitamin A. Wakes up dull skin and helps it repair overnight.',
+      'Pressed fresh carrot juice, rich in vitamin A. Wakes up dull skin and helps it repair overnight.',
     benefits: ['Vitamin A', 'Anti-ageing', 'Even tone'],
-    price: 159,
-    weight: '100 g',
+    price: 50,
+    unit: 'piece',
     shape: 'bar',
     texture: 'speckle',
     textureColor: '#b95a17',
@@ -82,10 +83,10 @@ export const soaps: Soap[] = [
     tint: '#f4dce6',
     tagline: 'Pink from the earth, not from a lab.',
     description:
-      'Beetroot powder and rose-hip oil give this bar its natural blush. Packed with antioxidants for a healthy, flushed glow.',
+      'Fresh beetroot gives this bar its natural blush. Packed with antioxidants for a healthy, flushed glow.',
     benefits: ['Antioxidant rich', 'Natural blush', 'Softens skin'],
-    price: 159,
-    weight: '100 g',
+    price: 50,
+    unit: 'piece',
     shape: 'oval',
     texture: 'none',
   },
@@ -98,13 +99,13 @@ export const soaps: Soap[] = [
     tint: '#dfe9d8',
     tagline: 'Grandmother’s remedy from the backyard.',
     description:
-      'The humble Indian nettle, stone-ground with turmeric. A traditional bar for itchy, irritated skin and stubborn rashes.',
-    benefits: ['Anti-itch', 'Rash relief', 'Turmeric blend'],
-    price: 169,
-    weight: '100 g',
+      'The humble Indian nettle, stone-ground fresh. A traditional bar for itchy, irritated skin and stubborn rashes.',
+    benefits: ['Anti-itch', 'Rash relief', 'Gentle cleanse'],
+    price: 45,
+    unit: 'piece',
     shape: 'bar',
     texture: 'flecks',
-    textureColor: '#e0b43a',
+    textureColor: '#2a4d1f',
   },
   {
     id: 'tomato',
@@ -117,8 +118,8 @@ export const soaps: Soap[] = [
     description:
       'Sun-ripened tomato pulp tightens pores and lifts tan. A zesty, juicy bar made for oily and combination skin.',
     benefits: ['Tan removal', 'Tightens pores', 'Oil control'],
-    price: 149,
-    weight: '100 g',
+    price: 50,
+    unit: 'piece',
     shape: 'oval',
     texture: 'speckle',
     textureColor: '#f7c24a',
@@ -132,10 +133,10 @@ export const soaps: Soap[] = [
     tint: '#f5eadb',
     tagline: 'Temple-cool, ancient and calm.',
     description:
-      'Pure Mysore sandalwood powder and oil. A cooling, fragrant bar that settles heat rashes and leaves a lingering woody calm.',
+      'Pure sandalwood powder and oil. A cooling, fragrant bar that settles heat rashes and leaves a lingering woody calm.',
     benefits: ['Cooling', 'Woody fragrance', 'Even tone'],
-    price: 199,
-    weight: '100 g',
+    price: 52,
+    unit: 'piece',
     shape: 'pebble',
     texture: 'speckle',
     textureColor: '#9c6c32',
@@ -151,8 +152,8 @@ export const soaps: Soap[] = [
     description:
       'A heritage blend of javvadhu, sandal and warm spices. Deep, musky and luxurious — a bath that smells like a festival evening.',
     benefits: ['Long-lasting scent', 'Deep cleanse', 'Heritage recipe'],
-    price: 229,
-    weight: '100 g',
+    price: 55,
+    unit: 'piece',
     shape: 'bar',
     texture: 'flecks',
     textureColor: '#e8c26a',
@@ -160,18 +161,18 @@ export const soaps: Soap[] = [
   {
     id: 'whitening',
     name: 'Skin Whitening',
-    latin: 'Saffron · Milk · Licorice',
+    latin: 'Rice · Potato · Licorice',
     color: '#f3d9c6',
     deep: '#a5653d',
     tint: '#fbf1e9',
-    tagline: 'Saffron, milk and a little patience.',
+    tagline: 'Rice, roots and a little patience.',
     description:
-      'Kashmiri saffron, milk cream and licorice root fade dark spots and even out tone for naturally radiant skin.',
+      'Rice powder, potato extract, licorice root (athimathuram) and aloe vera in pure coconut oil gently fade dark spots and even out tone for naturally radiant skin.',
     benefits: ['Fades spots', 'Even tone', 'Radiance'],
-    price: 249,
-    weight: '100 g',
+    price: 60,
+    unit: 'piece',
     shape: 'oval',
-    texture: 'strands',
-    textureColor: '#d2471c',
+    texture: 'speckle',
+    textureColor: '#c4a07e',
   },
 ]

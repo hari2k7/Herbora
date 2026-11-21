@@ -215,7 +215,11 @@ export default function SoapShowcase({ onAdd }: Props) {
       <div className="col-intro">
         <span className="pill">The collection</span>
         <h2 className="h2">Nine bars.<br />Nine <em>gardens.</em></h2>
-        <p>Cold-processed in small batches and cured for six slow weeks. Scroll to meet them, one lather at a time.</p>
+        <p className="col-note">
+          <span className="hl">Cold-processed in small batches</span> with <mark className="coco">pure coconut oil</mark>
+          {' '}and <span className="hl">cured for six slow weeks.</span>
+          <span className="col-note-sub">Scroll to meet them, one lather at a time.</span>
+        </p>
       </div>
 
       <canvas ref={backCanvas} className="col-bubbles" aria-hidden="true" />
@@ -259,7 +263,7 @@ export default function SoapShowcase({ onAdd }: Props) {
             <div className="info-buy r">
               <div className="price">
                 <span className="rupee">&#8377;</span>{s.price}
-                <small>/ {s.weight}</small>
+                <small>/ {s.unit}</small>
               </div>
               <AddButton soap={s} onAdd={onAdd} />
             </div>

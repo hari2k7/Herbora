@@ -1,19 +1,21 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Aloe, Badge, Kuppaimeni, Mortar, Neem, Sandal, Turmeric } from './Herbs'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { Aloe, Badge, Coconut, Kuppaimeni, Mortar, Neem, Sandal } from './Herbs'
 import { gsap, reduceMotion } from '../lib/motion'
+import { openContact, SOAP_BOX_MESSAGE } from '../data/contact'
+import ContactSheet from './ContactSheet'
 
 const HERBS = [
   { id: 'neem', C: Neem, left: 0, top: -52, w: 22, rot: -10, label: 'Neem sprig' },
   { id: 'mortar', C: Mortar, left: 6, top: 38, w: 17, rot: 6, label: 'Mortar and pestle' },
   { id: 'aloe', C: Aloe, left: 28, top: -70, w: 14, rot: 4, label: 'Aloe vera' },
-  { id: 'turmeric', C: Turmeric, left: 30, top: 56, w: 15, rot: -8, label: 'Turmeric' },
+  { id: 'coconut', C: Coconut, left: 29, top: 46, w: 17, rot: -6, label: 'Coconut' },
   { id: 'badge', C: Badge, left: 44.5, top: 4, w: 12, rot: -6, label: 'Pure herbs stamp' },
   { id: 'sandal', C: Sandal, left: 56, top: 50, w: 21, rot: -4, label: 'Sandalwood logs' },
   { id: 'kuppaimeni', C: Kuppaimeni, left: 79, top: -66, w: 17, rot: 8, label: 'Kuppaimeni sprig' },
 ]
 
 /** A pill whose outline is a soft scalloped wave; it ripples on hover. */
-function WavyButton({ children, href }: { children: React.ReactNode; href: string }) {
+function WavyButton({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: () => void }) {
   const W = 230
   const H = 52
   const path = (phase: number, amp: number) => {
@@ -37,7 +39,7 @@ function WavyButton({ children, href }: { children: React.ReactNode; href: strin
   const a = useMemo(() => path(0, 3), [])
   const b = useMemo(() => path(Math.PI, 4.2), [])
   return (
-    <a className="wavy-btn" href={href} style={{ ['--d1' as string]: `path('${a}')`, ['--d2' as string]: `path('${b}')` }}>
+    <a className="wavy-btn" href={href} onClick={onClick ? (e) => { e.preventDefault(); onClick() } : undefined} style={{ ['--d1' as string]: `path('${a}')`, ['--d2' as string]: `path('${b}')` }}>
       <svg viewBox={`0 0 ${W + 12} ${H + 12}`} aria-hidden="true">
         <path className="wavy-shape" d={a} />
       </svg>
@@ -49,7 +51,6 @@ function WavyButton({ children, href }: { children: React.ReactNode; href: strin
 export default function Footer() {
   const root = useRef<HTMLElement>(null)
   const herbEls = useRef<(HTMLDivElement | null)[]>([])
-  const [joined, setJoined] = useState(false)
 
   // pointer-reactive herbs: shy away from the cursor, spring back, hop when tapped
   useEffect(() => {
@@ -147,7 +148,7 @@ export default function Footer() {
         opacity: 0, scale: 0.5, y: 40, duration: 1, stagger: { each: 0.08, from: 'random' }, ease: 'back.out(2)',
         scrollTrigger: { trigger: '.f-mark', start: 'top 80%' },
       })
-      gsap.from('.f-col, .f-news', { opacity: 0, y: 24, duration: 0.9, stagger: 0.08, ease: 'power3.out', scrollTrigger: { trigger: root.current, start: 'top 85%' } })
+      gsap.from('.f-contact, .f-wa', { opacity: 0, y: 24, duration: 0.9, stagger: 0.08, ease: 'power3.out', scrollTrigger: { trigger: root.current, start: 'top 85%' } })
     }, root)
     return () => ctx.revert()
   }, [])
@@ -155,31 +156,27 @@ export default function Footer() {
   return (
     <footer className="footer" id="visit" ref={root}>
       <div className="f-top">
-        <div className="f-col">
-          <h4>Shop</h4>
-          <a href="#soaps">Soap bars</a>
-          <a href="#soaps">Gift boxes</a>
-          <a href="#soaps">Bundles</a>
+        <div className="f-contact">
+          <h4>Contact us</h4>
+          <p>Orders, gift boxes or a question about your skin &mdash; message us on WhatsApp and we&rsquo;ll reply personally.</p>
         </div>
-        <div className="f-col">
-          <h4>Say hello</h4>
-          <a href="mailto:hello@herbora.example">Email</a>
-          <a href="#visit">Instagram</a>
-          <a href="tel:+910000000000">Call the shop</a>
+        <div className="f-wa">
+          <button type="button" className="wa-btn" onClick={() => openContact()} aria-haspopup="dialog">
+            <span className="wa-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="22" height="22">
+                <path d="M16 3.5C9.1 3.5 3.5 9 3.5 15.8c0 2.4.7 4.6 1.9 6.5L3.6 28.5l6.4-1.7c1.8 1 3.8 1.5 6 1.5 6.9 0 12.5-5.5 12.5-12.3S22.9 3.5 16 3.5z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+                <path d="M11.6 9.8c.4-.1.8 0 1 .4l1.2 2.7c.1.3.1.7-.2 1l-.9 1c.9 1.8 2.3 3.2 4.1 4.1l1-1c.3-.3.7-.3 1-.2l2.7 1.2c.4.2.5.6.4 1-.4 1.6-1.9 2.6-3.5 2.4-4.6-.6-8.2-4.2-8.8-8.8-.2-1.6.8-3.2 2.4-3.6z" fill="currentColor" />
+              </svg>
+            </span>
+            <span className="wa-text">
+              <span className="wa-label">Chat on WhatsApp</span>
+              <span className="wa-num">We usually reply within a day</span>
+            </span>
+            <span className="wa-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </span>
+          </button>
         </div>
-        <div className="f-col">
-          <h4>Find us</h4>
-          <span>18 Neem Street, Coimbatore</span>
-          <span>Mon&ndash;Sat 9am&ndash;8pm</span>
-          <span>Sun 10am&ndash;2pm</span>
-        </div>
-        <form className="f-news" onSubmit={(e) => { e.preventDefault(); setJoined(true) }}>
-          <label htmlFor="news-email">{joined ? 'You’re on the list. See you Friday!' : 'Get the Friday lather list.'}</label>
-          <div className="f-news-row">
-            <input id="news-email" type="email" required placeholder="you@example.com" disabled={joined} />
-            <button type="submit" disabled={joined}>{joined ? '✓' : 'JOIN'}</button>
-          </div>
-        </form>
       </div>
 
       <div className="f-mark">
@@ -213,9 +210,10 @@ export default function Footer() {
 
       <div className="f-bottom">
         <span>&copy; 2026 Herbora Naturals</span>
-        <WavyButton href="#soaps">Build your soap box</WavyButton>
+        <WavyButton href="#visit" onClick={() => openContact(SOAP_BOX_MESSAGE)}>Build your soap box</WavyButton>
         <span className="f-legal"><a href="#visit">Privacy</a> &middot; <a href="#visit">Terms</a></span>
       </div>
+      <ContactSheet />
     </footer>
   )
 }

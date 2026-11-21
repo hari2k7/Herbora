@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
 import type { Soap } from './data/soaps'
 import { gsap, initLenis, reduceMotion, ScrollTrigger } from './lib/motion'
+import { SCROLL_TARGET_KEY } from './lib/router'
 
 interface Props {
   bagRef: RefObject<HTMLButtonElement | null>
@@ -47,6 +48,22 @@ export default function Below({ bagRef, onAdd, onArrive }: Props) {
   useEffect(() => {
     if (late) requestAnimationFrame(() => ScrollTrigger.refresh())
   }, [late])
+
+  // coming back from the bag page with "Meet the bars": land on the collection
+  useEffect(() => {
+    let target: string | null = null
+    try {
+      target = sessionStorage.getItem(SCROLL_TARGET_KEY)
+      sessionStorage.removeItem(SCROLL_TARGET_KEY)
+    } catch { /* ignore */ }
+    if (!target) return
+    const t = globalThis.setTimeout(() => {
+      ScrollTrigger.refresh()
+      const el = document.querySelector(target!)
+      if (el) initLenis().scrollTo(el as HTMLElement, { immediate: true, force: true })
+    }, 350)
+    return () => globalThis.clearTimeout(t)
+  }, [])
 
   const add = (soap: Soap, from: HTMLElement) => {
     onAdd(soap)
