@@ -101,6 +101,39 @@ export default function SoapShowcase({ onAdd }: Props) {
     return () => ctx.revert()
   }, [])
 
+  // ---------- the soap on stage tilts gently toward the cursor (mouse/trackpad only) ----------
+  useEffect(() => {
+    if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    const sec = root.current!
+    const el = stage.current!
+    const cur = { x: 0, y: 0 }
+    const target = { x: 0, y: 0 }
+    let raf = 0
+    const step = () => {
+      cur.x += (target.x - cur.x) * 0.12
+      cur.y += (target.y - cur.y) * 0.12
+      el.style.transform = `perspective(1100px) rotateX(${cur.y.toFixed(2)}deg) rotateY(${cur.x.toFixed(2)}deg)`
+      raf = Math.abs(target.x - cur.x) + Math.abs(target.y - cur.y) > 0.02 ? requestAnimationFrame(step) : 0
+    }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(step) }
+    const onMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect()
+      const nx = (e.clientX - (r.left + r.width / 2)) / r.width
+      const ny = (e.clientY - (r.top + r.height / 2)) / r.height
+      target.x = Math.max(-1, Math.min(1, nx)) * 10
+      target.y = Math.max(-1, Math.min(1, ny)) * -7
+      kick()
+    }
+    const onLeave = () => { target.x = 0; target.y = 0; kick() }
+    sec.addEventListener('pointermove', onMove)
+    sec.addEventListener('pointerleave', onLeave)
+    return () => {
+      cancelAnimationFrame(raf)
+      sec.removeEventListener('pointermove', onMove)
+      sec.removeEventListener('pointerleave', onLeave)
+    }
+  }, [])
+
   // ---------- bubbles that trail the moving soaps ----------
   useEffect(() => {
     const back = new BubbleField(backCanvas.current!, 1)

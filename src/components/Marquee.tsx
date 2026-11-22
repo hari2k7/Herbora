@@ -49,7 +49,8 @@ export default function Marquee() {
   const row = [...WORDS, ...WORDS]
   return (
     <div className="marquee-wrap">
-    <div className="marquee" ref={wrap} aria-label={WORDS.join(', ')}>
+    <div className="marquee" ref={wrap}>
+      <p className="sr-only">{WORDS.join(', ')}</p>
       <div className="marquee-track" ref={track} aria-hidden="true">
         {[...row, ...row].map((w, i) => (
           <span key={i} className="mq-item">

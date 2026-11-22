@@ -20,7 +20,8 @@ export default function WobbleText({ text, className, charClass = 'ch', style }:
     el.addEventListener('animationend', () => el.classList.remove('wobble'), { once: true })
   }
   return (
-    <span className={className} style={style} aria-label={text} role="text">
+    <span className={className} style={style}>
+      <span className="sr-only">{text}</span>
       {Array.from(text).map((c, i) =>
         c === ' ' ? (
           <span key={i} className="sp" aria-hidden="true">

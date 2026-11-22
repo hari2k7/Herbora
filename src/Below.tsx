@@ -20,8 +20,9 @@ interface Props {
  * chunk so the hero can paint before the animation libraries download.
  */
 export default function Below({ bagRef, onAdd, onArrive }: Props) {
-  // the grass section and footer are far down the page — mount them once the browser is idle
-  const [late, setLate] = useState(false)
+  // The grass, reviews and footer are far down the page. They mount one at a time, each
+  // in its own idle moment, so no single long task blocks scrolling or taps.
+  const [stage, setStage] = useState(0)
 
   useLayoutEffect(() => {
     initLenis()
@@ -37,18 +38,21 @@ export default function Below({ bagRef, onAdd, onArrive }: Props) {
   useEffect(() => {
     // one refresh once web fonts have settled (text metrics change pin spacing)
     document.fonts?.ready.then(() => ScrollTrigger.refresh())
-    const show = () => setLate(true)
-    if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(show, { timeout: 1500 })
-      return () => window.cancelIdleCallback(id)
-    }
-    const t = globalThis.setTimeout(show, 700)
-    return () => globalThis.clearTimeout(t)
   }, [])
 
   useEffect(() => {
-    if (late) requestAnimationFrame(() => ScrollTrigger.refresh())
-  }, [late])
+    if (stage >= 3) {
+      requestAnimationFrame(() => ScrollTrigger.refresh())
+      return
+    }
+    const next = () => setStage((s) => s + 1)
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(next, { timeout: stage === 0 ? 1500 : 800 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const t = globalThis.setTimeout(next, stage === 0 ? 700 : 250)
+    return () => globalThis.clearTimeout(t)
+  }, [stage])
 
   // coming back from the bag page with "Meet the bars": land on the collection
   useEffect(() => {
@@ -91,9 +95,9 @@ export default function Below({ bagRef, onAdd, onArrive }: Props) {
     <>
       <Marquee />
       <SoapShowcase onAdd={add} />
-      {late ? <GrassQuote /> : <div className="quote-ph" aria-hidden="true" />}
-      {late && <Reviews />}
-      {late ? <Footer /> : <div className="footer-ph" aria-hidden="true" />}
+      {stage >= 1 ? <GrassQuote /> : <div className="quote-ph" aria-hidden="true" />}
+      {stage >= 2 ? <Reviews /> : <div className="reviews-ph" aria-hidden="true" />}
+      {stage >= 3 ? <Footer /> : <div className="footer-ph" aria-hidden="true" />}
       <BackToTop />
     </>
   )

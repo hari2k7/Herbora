@@ -1,4 +1,4 @@
-import { memo, useId, useMemo } from 'react'
+import { memo, useEffect, useId, useMemo, useRef } from 'react'
 import type { Soap } from '../data/soaps'
 import { darken, lighten, mix } from '../lib/color'
 import { seeded } from '../lib/util'
@@ -24,24 +24,55 @@ const INNER = {
     'M110 128 C108 92 158 74 218 76 C282 78 330 98 330 132 C330 166 282 184 212 184 C148 184 112 164 110 128 Z',
 }
 
-// One shared grain tile (generated once) gives every bar a matte, pressed texture.
-let grainUrl: string | null = null
-function grain() {
-  if (grainUrl || typeof document === 'undefined') return grainUrl
-  const c = document.createElement('canvas')
-  c.width = c.height = 96
-  const g = c.getContext('2d')!
-  const img = g.createImageData(96, 96)
-  const r = seeded(42)
-  for (let i = 0; i < img.data.length; i += 4) {
-    const v = r()
-    const light = v > 0.5
-    img.data[i] = img.data[i + 1] = img.data[i + 2] = light ? 255 : 0
-    img.data[i + 3] = Math.floor(Math.abs(v - 0.5) * 2 * 46)
-  }
-  g.putImageData(img, 0, 0)
-  grainUrl = c.toDataURL()
-  return grainUrl
+// One shared grain tile gives every bar a matte, pressed texture. It's generated once,
+// when the browser is idle, and encoded with toBlob (asynchronous, off the main thread)
+// so it never blocks scrolling or the first paint.
+let grainPromise: Promise<string | null> | null = null
+function grain(): Promise<string | null> {
+  if (grainPromise) return grainPromise
+  grainPromise = new Promise((resolve) => {
+    const make = () => {
+      const S = 64
+      const c = document.createElement('canvas')
+      c.width = c.height = S
+      const g = c.getContext('2d')
+      if (!g) return resolve(null)
+      const img = g.createImageData(S, S)
+      const r = seeded(42)
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = r()
+        img.data[i] = img.data[i + 1] = img.data[i + 2] = v > 0.5 ? 255 : 0
+        img.data[i + 3] = Math.floor(Math.abs(v - 0.5) * 2 * 46)
+      }
+      g.putImageData(img, 0, 0)
+      c.toBlob((b) => resolve(b ? URL.createObjectURL(b) : null), 'image/png')
+    }
+    if ('requestIdleCallback' in window) window.requestIdleCallback(make, { timeout: 2500 })
+    else globalThis.setTimeout(make, 400)
+  })
+  return grainPromise
+}
+
+/**
+ * Rendered once per page: the single grain pattern every soap bar points at.
+ * When the texture is ready only this tiny component updates — no soap re-renders.
+ */
+export function GrainDefs() {
+  const img = useRef<SVGImageElement>(null)
+  useEffect(() => {
+    let alive = true
+    grain().then((u) => { if (alive && u && img.current) img.current.setAttribute('href', u) })
+    return () => { alive = false }
+  }, [])
+  return (
+    <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false">
+      <defs>
+        <pattern id="herbora-grain" width="64" height="64" patternUnits="userSpaceOnUse">
+          <image ref={img} width="64" height="64" />
+        </pattern>
+      </defs>
+    </svg>
+  )
 }
 
 interface Props {
@@ -116,7 +147,6 @@ function SoapBar({ soap, seed = 1, className, compact }: Props) {
   const face = SHAPES[shape]
   const inner = INNER[shape]
   const label = soap.name.split(' ')[0].toUpperCase()
-  const g = grain()
 
   // bevel: stacked slices from the dark underside up to the lit rim
   const sideTop = mix(color, deep, 0.28)
@@ -159,11 +189,6 @@ function SoapBar({ soap, seed = 1, className, compact }: Props) {
         <clipPath id={`clip${id}`}>
           <path d={face} />
         </clipPath>
-        {g && (
-          <pattern id={`grain${id}`} width="96" height="96" patternUnits="userSpaceOnUse">
-            <image href={g} width="96" height="96" />
-          </pattern>
-        )}
       </defs>
 
       {/* body + rounded bevel */}
@@ -178,7 +203,8 @@ function SoapBar({ soap, seed = 1, className, compact }: Props) {
       {/* top face */}
       <path d={face} fill={`url(#top${id})`} opacity={gel ? 0.94 : 1} />
       <g clipPath={`url(#clip${id})`}>
-        {g && <rect width="420" height="290" fill={`url(#grain${id})`} opacity={gel ? 0.35 : 0.8} />}
+        {/* shared grain pattern (see <GrainDefs/>); transparent until its image is ready */}
+        <rect width="420" height="290" fill="url(#herbora-grain)" opacity={gel ? 0.35 : 0.8} />
         {marks}
         <path d={face} fill={`url(#dome${id})`} />
         <ellipse cx="150" cy="78" rx="150" ry="52" fill={`url(#sheen${id})`} transform="rotate(-8 150 78)" />

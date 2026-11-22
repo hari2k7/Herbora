@@ -15,7 +15,8 @@ export function navigate(path: string, opts: { hash?: string } = {}) {
 }
 
 export function usePath() {
-  const [path, setPath] = useState(() => location.pathname)
+  // during the build-time pre-render there is no browser location: render the landing page
+  const [path, setPath] = useState(() => (typeof location === 'undefined' ? '/' : location.pathname))
   useEffect(() => {
     const update = () => setPath(location.pathname)
     window.addEventListener('popstate', update)

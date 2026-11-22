@@ -44,14 +44,27 @@ No UI or router libraries — a ~30-line router (`src/lib/router.ts`) handles th
 
 ## Performance
 
-The site was profiled with Lighthouse and Chrome traces and tuned so the effects stay smooth on phones:
+The site was profiled with Lighthouse and Chrome traces and tuned so the effects stay smooth on phones.
 
+**Lighthouse (production build, `npm run build && npm run preview`):**
+
+| | Performance | Accessibility | Best practices | SEO |
+|---|---|---|---|---|
+| Mobile — landing | 94–96 | 100 | 100 | 100 |
+| Mobile — bag page | 98 | 100 | 100 | 100 |
+| Desktop — landing | 100 | 100 | 100 | 100 |
+
+> Measure the production build — the dev server (`npm run dev`) is unoptimised and always scores much lower.
+
+- **Pre-rendered hero**: at build time the landing page is rendered to HTML (`vite.config.ts` → `entry-server.tsx`), its CSS is inlined and the title font embedded, so the hero paints before any JavaScript runs; React hydrates it once the browser is idle.
 - **Code-split**: the first bundle is just React + the hero; GSAP, Lenis and every section below the fold arrive in a second chunk, and the bag page is its own chunk.
 - **Compositor-only motion** where possible (`transform` / `opacity`), no filters on moving elements, no CSS variables inside keyframes.
 - GSAP tweens use explicit `fromTo` values so scrolling never forces a full-page style recalculation.
 - Canvases render at reduced pixel ratio, **pause when off-screen**, and the grass drops to 30 fps when nobody is touching it.
 - The WebGL water renders at ~60 % resolution and 30 fps, starts after first paint, and draws a single still frame on software-only GPUs.
-- The grass section and footer mount when the browser is idle.
+- The grass, reviews and footer mount one at a time in idle moments, so no single long task blocks taps or scrolling.
+- The soap grain texture is generated once, encoded off the main thread and shared by every bar through one SVG pattern.
+- Hover effects only run on devices with a real mouse, so taps on phones never leave buttons stuck mid-animation.
 - `prefers-reduced-motion` is respected throughout.
 
 ---

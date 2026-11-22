@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import BagButton from './components/BagButton'
+import { GrainDefs } from './components/SoapBar'
 import Hero from './components/Hero'
 import type { Soap } from './data/soaps'
 import { BagProvider, useBag } from './lib/bag'
@@ -7,8 +8,11 @@ import { navigate, usePath } from './lib/router'
 
 // GSAP, Lenis and every section below the hero arrive in a second chunk,
 // so the hero paints as soon as the small first bundle runs.
-const Below = lazy(() => import('./Below'))
-const BagPage = lazy(() => import('./pages/BagPage'))
+// During the build-time pre-render these never resolve, so the HTML holds the light
+// placeholders and the browser renders the real sections after hydration.
+const never = () => new Promise<never>(() => {})
+const Below = lazy(import.meta.env.SSR ? never : () => import('./Below'))
+const BagPage = lazy(import.meta.env.SSR ? never : () => import('./pages/BagPage'))
 
 function Shell() {
   const path = usePath()
@@ -46,6 +50,7 @@ function Shell() {
 
   return (
     <>
+      <GrainDefs />
       {!onBag && <BagButton ref={bagRef} count={count} bump={bump} onClick={() => navigate('/bag')} />}
       {onBag ? (
         <Suspense fallback={<div className="bag-ph" aria-hidden="true" />}>
@@ -71,9 +76,9 @@ function Shell() {
   )
 }
 
-export default function App() {
+export default function App({ hydrating = false }: { hydrating?: boolean }) {
   return (
-    <BagProvider>
+    <BagProvider deferLoad={hydrating}>
       <Shell />
     </BagProvider>
   )

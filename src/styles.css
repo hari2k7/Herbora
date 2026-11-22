@@ -380,6 +380,7 @@ ul { list-style: none; }
 .below-ph { height: 400vh; background: #eef0e2; }
 .quote-ph { height: 112vh; min-height: 700px; background: #4b9ced; }
 .footer-ph { height: 100vh; background: #1b3223; }
+.reviews-ph { height: 760px; background: #ede3cf; }
 
 /* ================= footer ================= */
 .footer {
@@ -388,7 +389,7 @@ ul { list-style: none; }
   background: linear-gradient(180deg, #27482f 0%, #1b3223 45%, #0e1912 100%);
 }
 .f-top { display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
-.f-contact h4 { font-weight: 400; font-size: clamp(26px, 2.6vw, 36px); color: #f4efe3; margin-bottom: 8px; }
+.f-contact-title { font-weight: 400; font-size: clamp(26px, 2.6vw, 36px); color: #f4efe3; margin-bottom: 8px; }
 .f-contact p { max-width: 440px; font-size: 16px; line-height: 1.5; color: rgba(239, 233, 220, 0.78); }
 .wa-btn {
   font: inherit; border: 0; cursor: pointer; text-align: left;
@@ -664,4 +665,29 @@ ul { list-style: none; }
   .rv-intro .h2 { text-align: center; }
   .rv-controls { justify-content: center; }
   .rv-deck { height: 520px; }
+}
+
+/* ================= interaction polish ================= */
+/* pressed feedback everywhere it makes sense */
+.btn-leaf:active, .add-btn:active, .bag-btn:active, .rv-arrow:active, .wa-btn:active, .to-top:active, .cs-send:active { transform: scale(0.96); transition-duration: 0.12s; }
+
+/* lift the top review sleeve a little when hovered */
+.rv-card { transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.25, 1.15); }
+@media (hover: hover) and (pointer: fine) {
+  .rv-slot.is-top:hover .rv-card { transform: translateY(-8px) rotate(-1.2deg); }
+  .rv-deck.dragging .rv-slot.is-top .rv-card { transform: none; }
+}
+
+/* showcase stage tilts toward the cursor (set from JS on fine pointers only) */
+.stage { will-change: transform; transform-style: flat; }
+
+/* touch screens: no sticky hover states after a tap */
+@media (hover: none) {
+  .btn-leaf:hover, .add-btn:hover, .bag-btn:hover, .rv-arrow:hover, .wa-btn:hover, .back-link:hover,
+  .bag-cta:hover, .to-top.on:hover, .rail-dot:hover, .cs-send:hover, .f-news button:hover { transform: none; }
+  .btn-leaf:hover .btn-leaf-bg { transform: translate(-105%, 40%) rotate(-12deg) scale(1.2); }
+  .add-btn:hover .add-foam { clip-path: circle(0% at 29px 50%); }
+  .add-btn:hover .add-icon { transform: none; }
+  .add-btn.is-added .add-foam { clip-path: circle(150% at 29px 50%); }
+  .wa-btn:hover::before { clip-path: circle(0% at 30px 50%); }
 }

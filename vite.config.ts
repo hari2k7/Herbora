@@ -42,6 +42,76 @@ function devApi(): Plugin {
   }
 }
 
+/**
+ * After the production build:
+ *  1. pre-render the landing page with React on the server and put the HTML into
+ *     dist/index.html, so the hero appears before any JavaScript downloads;
+ *  2. inline the main stylesheet (removes a render-blocking request);
+ *  3. preload the two brand fonts so the HERBORA title paints in the right font at once.
+ */
+function prerender(): Plugin {
+  let outDir = 'dist'
+  let root = process.cwd()
+  return {
+    name: 'herbora-prerender',
+    apply: 'build',
+    configResolved(c) {
+      outDir = c.build.outDir
+      root = c.root
+    },
+    async closeBundle() {
+      const fs = await import('node:fs')
+      const path = await import('node:path')
+      const { createServer } = await import('vite')
+      const dist = path.resolve(root, outDir)
+      const file = path.join(dist, 'index.html')
+      if (!fs.existsSync(file)) return
+
+      const server = await createServer({
+        root,
+        configFile: false,
+        plugins: [react()],
+        logLevel: 'error',
+        server: { middlewareMode: true, hmr: false },
+        appType: 'custom',
+      })
+      let appHtml = ''
+      try {
+        const mod = await server.ssrLoadModule('/src/entry-server.tsx')
+        appHtml = (mod.render as () => string)()
+      } finally {
+        await server.close()
+      }
+
+      let html = fs.readFileSync(file, 'utf8')
+      html = html.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
+
+      const assets = fs.readdirSync(path.join(dist, 'assets'))
+      // the HERBORA title (the largest thing on screen) uses Titan One: embed that small
+      // font in the page so the title paints in its final font straight away
+      const titan = assets.find((f) => /^titan-one-latin-400-normal-.*\.woff2$/.test(f))
+
+      // inline the main CSS
+      html = html.replace(/<link rel="stylesheet"[^>]*href="(\/assets\/[^"]+\.css)"[^>]*>/, (tag, href: string) => {
+        let css = fs.readFileSync(path.join(dist, href), 'utf8')
+        if (titan) {
+          const b64 = fs.readFileSync(path.join(dist, 'assets', titan)).toString('base64')
+          css = css.split(`/assets/${titan}`).join(`data:font/woff2;base64,${b64}`)
+        }
+        return `<style>${css}</style>`
+      })
+
+      // preload the remaining brand font (latin woff2)
+      const fonts = assets.filter((f) => /^lilita-one-latin-400-normal-.*\.woff2$/.test(f))
+      const preload = fonts.map((f) => `<link rel="preload" href="/assets/${f}" as="font" type="font/woff2" crossorigin>`).join('\n    ')
+      html = html.replace('</title>', `</title>\n    ${preload}`)
+
+      fs.writeFileSync(file, html)
+      console.log(`[prerender] landing page pre-rendered (${(appHtml.length / 1024).toFixed(1)} kB of HTML), CSS inlined, ${fonts.length} fonts preloaded`)
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), devApi()],
+  plugins: [react(), devApi(), prerender()],
 })

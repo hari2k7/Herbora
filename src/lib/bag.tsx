@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { soaps, type Soap } from '../data/soaps'
 
 /**
@@ -40,10 +40,20 @@ function load(): Items {
 
 const BagContext = createContext<BagValue | null>(null)
 
-export function BagProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<Items>(load)
+/**
+ * deferLoad: when the page was pre-rendered at build time, the first render must match
+ * that HTML (an empty bag), so the saved bag is read right after hydration instead.
+ */
+export function BagProvider({ children, deferLoad = false }: { children: ReactNode; deferLoad?: boolean }) {
+  const [items, setItems] = useState<Items>(() => (deferLoad || typeof window === 'undefined' ? {} : load()))
+  const loaded = useRef(!deferLoad)
 
   useEffect(() => {
+    if (!loaded.current) {
+      loaded.current = true
+      setItems(load())
+      return
+    }
     try {
       localStorage.setItem(KEY, JSON.stringify(items))
     } catch {

@@ -157,7 +157,7 @@ export default function Footer() {
     <footer className="footer" id="visit" ref={root}>
       <div className="f-top">
         <div className="f-contact">
-          <h4>Contact us</h4>
+          <h2 className="f-contact-title">Contact us</h2>
           <p>Orders, gift boxes or a question about your skin &mdash; message us on WhatsApp and we&rsquo;ll reply personally.</p>
         </div>
         <div className="f-wa">
