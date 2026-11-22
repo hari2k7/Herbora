@@ -61,7 +61,7 @@ function Wrapper({ index }: { index: number }) {
         <footer className="rv-foot">
           <span className="rv-who">
             <b>{r.name}</b>
-            <span>{r.city}</span>
+            {r.city && <span>{r.city}</span>}
           </span>
           <span className="rv-used">
             <i style={{ background: soap.color }} aria-hidden="true" />

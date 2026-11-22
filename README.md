@@ -50,7 +50,7 @@ The site was profiled with Lighthouse and Chrome traces and tuned so the effects
 
 | | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Mobile — landing | 94–96 | 100 | 100 | 100 |
+| Mobile — landing | 92–96 | 100 | 100 | 100 |
 | Mobile — bag page | 98 | 100 | 100 | 100 |
 | Desktop — landing | 100 | 100 | 100 | 100 |
 
