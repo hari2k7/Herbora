@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useState, type RefObject } from 'react'
 import Marquee from './components/Marquee'
 import SoapShowcase from './components/SoapShowcase'
 import GrassQuote from './components/GrassQuote'
+import Reviews from './components/Reviews'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
 import type { Soap } from './data/soaps'
@@ -91,6 +92,7 @@ export default function Below({ bagRef, onAdd, onArrive }: Props) {
       <Marquee />
       <SoapShowcase onAdd={add} />
       {late ? <GrassQuote /> : <div className="quote-ph" aria-hidden="true" />}
+      {late && <Reviews />}
       {late ? <Footer /> : <div className="footer-ph" aria-hidden="true" />}
       <BackToTop />
     </>
