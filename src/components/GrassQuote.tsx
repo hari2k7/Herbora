@@ -66,11 +66,15 @@ export default function GrassQuote() {
       return { x, y, nx, ny }
     }
 
+    // false until the current canvas has been drawn at least once (resizing clears it)
+    let painted = false
+
     const build = () => {
+      painted = false
       const r = cv.getBoundingClientRect()
       w = r.width
       h = r.height
-      dpr = Math.min(window.devicePixelRatio || 1, w < 700 ? 1 : 1.25)
+      dpr = 1 // soft, organic strokes don't need extra pixels; ~36% less to paint on hi-dpi screens
       cv.width = Math.round(w * dpr)
       cv.height = Math.round(h * dpr)
       T = Math.max(w < 700 ? 66 : 46, Math.min(130, Math.min(w, h * 1.4) * 0.1))
@@ -83,7 +87,7 @@ export default function GrassQuote() {
         L += Math.hypot(c.x - prev.x, c.y - prev.y)
         prev = c
       }
-      n = Math.round((L * T) / (mobile ? 36 : 24))
+      n = Math.min(7500, Math.round((L * T) / (mobile ? 36 : 28)))
       bx = new Float32Array(n); by = new Float32Array(n)
       dxs = new Float32Array(n); dys = new Float32Array(n); len = new Float32Array(n)
       ph = new Float32Array(n); ox = new Float32Array(n); oy = new Float32Array(n)
@@ -142,13 +146,18 @@ export default function GrassQuote() {
     }
 
     const mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999, on: false }
+    let lastMove = 0
+    let lastScroll = 0
     const onMove = (e: PointerEvent) => {
       const r = cv.getBoundingClientRect()
       mouse.x = e.clientX - r.left
       mouse.y = e.clientY - r.top
       if (!mouse.on) { mouse.sx = mouse.x; mouse.sy = mouse.y }
       mouse.on = true
+      lastMove = performance.now()
     }
+    const onScroll = () => { lastScroll = performance.now() }
+    window.addEventListener('scroll', onScroll, { passive: true })
     const onLeave = () => { mouse.on = false; mouse.x = mouse.y = -9999 }
     const sec = root.current!
     sec.addEventListener('pointermove', onMove)
@@ -161,7 +170,8 @@ export default function GrassQuote() {
     ro.observe(cv)
 
     let visible = false
-    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting))
+    // start a little before the grass scrolls into view, so it's already drawn when it arrives
+    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting), { rootMargin: '300px 0px' })
     io.observe(cv)
 
     const buckets = COLORS.map(() => new Path2D())
@@ -172,9 +182,17 @@ export default function GrassQuote() {
     const draw = (now: number) => {
       raf = requestAnimationFrame(draw)
       if (!visible || !n) return
-      // when nobody is touching the grass, a gentle 30fps sway is plenty
+      // Painting ~6,000 blades is the expensive part, so only redraw when it matters:
+      //  - someone is brushing the grass, or blades are still springing back: every frame
+      //  - the page is scrolling: hold the last frame (nobody notices the sway pause)
+      //  - otherwise: a gentle sway at ~20fps
       frame++
-      if (!mouse.on && settled && frame % 2) return
+      const brushing = mouse.on && now - lastMove < 250
+      // (the pause only applies once there's a picture on the canvas to hold)
+      if (!brushing && settled && painted) {
+        if (now - lastScroll < 180) return
+        if (frame % 3) return
+      }
       const time = reduceMotion ? 0 : (now - t0) / 1000
       // follow the pointer exactly — no smoothing lag
       if (mouse.on) { mouse.sx = mouse.x; mouse.sy = mouse.y }
@@ -183,6 +201,7 @@ export default function GrassQuote() {
       const R2 = R * R
       g.setTransform(dpr, 0, 0, dpr, 0, 0)
       g.clearRect(0, 0, w, h)
+      painted = true
 
       // soft shadow under the ribbon
       g.drawImage(shadow, 0, 0, w, h)
@@ -282,6 +301,7 @@ export default function GrassQuote() {
       sec.removeEventListener('pointerdown', onMove)
       sec.removeEventListener('pointerleave', onLeave)
       sec.removeEventListener('pointercancel', onLeave)
+      window.removeEventListener('scroll', onScroll)
     }
   }, [])
 
